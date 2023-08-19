@@ -1,27 +1,34 @@
 //
 //  ContentView.swift
 //  SnowSeeker98
-//
-//  Created by Александра Фонова on 18.08.2023.
+
 //
 
 import SwiftUI
 
-extension View {
-    @ViewBuilder func phoneOnlyNavigationView() -> some View {
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            self.navigationViewStyle(.stack)
-        } else {
-            self
-        }
-    }
+enum sortTypes {
+    case alphabetical
+    case country
+    case none
 }
+
+//extension View {
+//    @ViewBuilder func phoneOnlyNavigationView() -> some View {
+//        if UIDevice.current.userInterfaceIdiom == .phone {
+//            self.navigationViewStyle(.stack)
+//        } else {
+//            self
+//        }
+//    }
+//}
 
 struct ContentView: View {
     let resorts: [Resort] = Bundle.main.decode("resorts.json")
 
     @StateObject var favorites = Favorites()
     @State private var searchText = ""
+    @State private var isShowingSorting = false
+    @State private var sortType: sortTypes = sortTypes.none
 
     var body: some View {
         NavigationView {
@@ -55,9 +62,40 @@ struct ContentView: View {
                         }
                     }
                 }
+                .swipeActions {
+                    let isFavorited = favorites.contains(resort)
+                    Button {
+                        if isFavorited {
+                            favorites.remove(resort)
+                        } else {
+                            favorites.add(resort)
+                        }
+                    } label: {
+                        Label(isFavorited ? "Unfavorite" : "Favorite",
+                              systemImage: isFavorited ? "heart.slash" : "heart.fill")
+                    }
+                    .tint(isFavorited ? .blue : .red)
+                }
+                .confirmationDialog("Sort Settings", isPresented: $isShowingSorting) {
+                    Button("Default Order") { sortType = .none}
+                    Button("Sorted by Alphabetical") { sortType = .alphabetical}
+                    Button("Sorted by Country") { sortType = .country}
+                    Button("Cancel", role: .cancel) {}
+                }message: {
+                    Text("Select a new sorting")
+                }
             }
             .navigationTitle("Resorts")
             .searchable(text: $searchText, prompt: "Search for a resort")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        isShowingSorting = true
+                    } label: {
+                        Label("Sort Settings", systemImage: "arrow.up.arrow.down.square")
+                    }
+                }
+            }
 
             WelcomeView()
         }
@@ -65,10 +103,18 @@ struct ContentView: View {
     }
 
     var filteredResorts: [Resort] {
+        var sortedResorts = resorts
+        
+        if sortType == .alphabetical {
+            sortedResorts.sort{$0.name < $1.country}
+        }
+        else if sortType == .country {
+            sortedResorts.sort{$0.name < $1.country}
+        }
         if searchText.isEmpty {
-            return resorts
+            return sortedResorts
         } else {
-            return resorts.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+            return sortedResorts.filter { $0.name.localizedStandardContains(searchText)}
         }
     }
 }

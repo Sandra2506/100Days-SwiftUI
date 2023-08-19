@@ -2,7 +2,7 @@
 //  Resort.swift
 //  SnowSeeker
 //
-//  Created by Paul Hudson on 23/01/2022.
+
 //
 
 import Foundation

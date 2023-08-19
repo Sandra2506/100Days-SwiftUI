@@ -2,7 +2,7 @@
 //  ResortView.swift
 //  SnowSeeker
 //
-//  Created by Paul Hudson on 23/01/2022.
+
 //
 
 import SwiftUI
@@ -24,6 +24,7 @@ struct ResortView: View {
                 Image(decorative: resort.id)
                     .resizable()
                     .scaledToFit()
+                    .overlay(ImageOverlay(text: resort.imageCredit), alignment: .bottomTrailing)
 
                 HStack {
                     if sizeClass == .compact && typeSize > .large {
@@ -55,17 +56,18 @@ struct ResortView: View {
                                     .font(.title)
                             }
                         }
-                    }
-
-                    Button(favorites.contains(resort) ? "Remove from Favorites" : "Add to Favorites") {
-                        if favorites.contains(resort) {
-                            favorites.remove(resort)
-                        } else {
-                            favorites.add(resort)
+                        Spacer()
+                        
+                        Button(favorites.contains(resort) ? "Remove from Favorites" : "Add to Favorites") {
+                            if favorites.contains(resort) {
+                                favorites.remove(resort)
+                            } else {
+                                favorites.add(resort)
+                            }
                         }
+                        .buttonStyle(.borderedProminent)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .padding()
+                    .padding(.vertical)
                 }
                 .padding(.horizontal)
             }
@@ -81,9 +83,7 @@ struct ResortView: View {
 
 struct ResortView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
-            ResortView(resort: Resort.example)
-        }
-        .environmentObject(Favorites())
+        ResortView(resort: Resort.example)
+            .environmentObject(Favorites())
     }
 }

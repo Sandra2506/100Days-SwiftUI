@@ -2,7 +2,7 @@
 //  Facility.swift
 //  SnowSeeker
 //
-//  Created by Paul Hudson on 25/01/2022.
+
 //
 
 import SwiftUI
